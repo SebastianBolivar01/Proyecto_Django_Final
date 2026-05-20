@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historia Clínica - {{ record.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #333; }
+        .print-header { border-bottom: 2px solid #0f4c81; padding-bottom: 20px; margin-bottom: 30px; }
+        .logo-placeholder { font-size: 24px; font-weight: bold; color: #0f4c81; }
+        .doc-title { font-size: 20px; font-weight: bold; text-transform: uppercase; color: #555; }
+        .info-group { margin-bottom: 15px; }
+        .info-label { font-weight: bold; font-size: 14px; color: #666; text-transform: uppercase; display: block; }
+        .info-value { font-size: 16px; border-bottom: 1px dotted #ccc; padding-bottom: 5px; }
+        .clinical-section { margin-bottom: 25px; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; }
+        .clinical-label { font-size: 15px; font-weight: bold; text-transform: uppercase; color: #0f4c81; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        @media print {
+            .no-print { display: none !important; }
+            body { margin: 0; padding: 20px; }
+            @page { margin: 1cm; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="container my-5">
+        <div class="no-print mb-4 text-end">
+            <button class="btn btn-primary" onclick="window.print()">Imprimir / Guardar como PDF</button>
+            <button class="btn btn-secondary" onclick="window.close()">Cerrar</button>
+        </div>
+
+        <div class="print-header d-flex justify-content-between align-items-end">
+            <div>
+                <div class="logo-placeholder">SGH Médica</div>
+                <div class="small text-muted mt-1">Sistema de Gestión Hospitalaria Integral</div>
+            </div>
+            <div class="text-end">
+                <div class="doc-title">Historia Clínica</div>
+                <div class="small mt-1">Nº Registro: <strong>#{{ record.id|stringformat:"05d" }}</strong></div>
+                <div class="small">Fecha Emisión: {% now "d/m/Y H:i" %}</div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-6">
+                <h6 class="fw-bold border-bottom pb-2 mb-3">Paciente</h6>
+                <div class="info-group">
+                    <span class="info-label">Nombre Completo</span>
+                    <span class="info-value fw-bold">{{ record.patient.user.get_full_name }}</span>
+                </div>
+                <div class="row">
+                    <div class="col-6 info-group">
+                        <span class="info-label">Fecha Nac.</span>
+                        <span class="info-value">{{ record.patient.date_of_birth|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="col-6 info-group">
+                        <span class="info-label">Grupo Sanguíneo</span>
+                        <span class="info-value">{{ record.patient.get_blood_type_display }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <h6 class="fw-bold border-bottom pb-2 mb-3">Médico Tratante</h6>
+                <div class="info-group">
+                    <span class="info-label">Nombre</span>
+                    <span class="info-value fw-bold">Dr. {{ record.doctor.user.get_full_name }}</span>
+                </div>
+                <div class="row">
+                    <div class="col-6 info-group">
+                        <span class="info-label">Especialidad</span>
+                        <span class="info-value">{{ record.doctor.specialty.name }}</span>
+                    </div>
+                    <div class="col-6 info-group">
+                        <span class="info-label">Licencia</span>
+                        <span class="info-value">{{ record.doctor.license_number }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-light p-2 text-center mb-4 border rounded">
+            <strong>Fecha de Consulta:</strong> {{ record.created_at|date:"d/m/Y \a \l\a\s H:i" }}
+        </div>
+
+        <div class="clinical-section">
+            <div class="clinical-label">Diagnóstico Clínico</div>
+            <div style="white-space: pre-line;">{{ record.diagnosis }}</div>
+        </div>
+
+        <div class="clinical-section">
+            <div class="clinical-label">Plan de Tratamiento</div>
+            <div style="white-space: pre-line;">{{ record.treatment }}</div>
+        </div>
+
+        <div class="clinical-section" style="background-color: #f8f9fa;">
+            <div class="clinical-label text-dark">Medicamentos Prescritos</div>
+            <div style="white-space: pre-line; font-family: monospace;">{{ record.medications|default:"Ninguno" }}</div>
+        </div>
+
+        {% if record.notes %}
+        <div class="clinical-section">
+            <div class="clinical-label">Notas Adicionales</div>
+            <div style="white-space: pre-line; font-style: italic;">{{ record.notes }}</div>
+        </div>
+        {% endif %}
+
+        <div class="mt-5 pt-5 row text-center">
+            <div class="col-6 offset-3">
+                <div style="border-top: 1px solid #333; width: 80%; margin: 0 auto; padding-top: 10px;">
+                    <strong>Firma y Sello del Médico</strong><br>
+                    Dr. {{ record.doctor.user.get_full_name }}<br>
+                    <small>Lic: {{ record.doctor.license_number }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 text-center text-muted small">
+            <p class="mb-0">Documento Clínico Oficial - SGH Médica &copy; {% now "Y" %}</p>
+        </div>
+    </div>
+</body>
+</html>
