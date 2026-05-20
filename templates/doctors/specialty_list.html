@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Especialidades Médicas - SGH Médica{% endblock %}
+{% block header_title %}Especialidades Médicas{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-primary mb-0"><i class="fa-solid fa-stethoscope me-2"></i>Especialidades Médicas</h2>
+        <p class="text-muted mb-0">Administra las especialidades que ofrece la institución.</p>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0 d-flex justify-content-md-end gap-2 align-items-center">
+        <form method="get" class="d-flex gap-2">
+            <div class="input-group" style="max-width: 250px;">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" placeholder="Buscar especialidad...">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            {% if query %}
+                <a href="{% url 'specialty_list' %}" class="btn btn-outline-secondary">Limpiar</a>
+            {% endif %}
+        </form>
+        <a href="{% url 'specialty_create' %}" class="btn btn-secondary"><i class="fa-solid fa-plus me-1"></i>Nueva Especialidad</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Especialidad</th>
+                        <th style="width: 55%;">Descripción</th>
+                        <th style="width: 20%;" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for specialty in page_obj %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ specialty.name }}</td>
+                            <td>{{ specialty.description|default:"Sin descripción registrada." }}</td>
+                            <td class="text-center">
+                                <a href="{% url 'specialty_update' specialty.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                    <i class="fa-solid fa-edit"></i> Editar
+                                </a>
+                                <a href="{% url 'specialty_delete' specialty.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fa-solid fa-trash"></i> Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">
+                                <i class="fa-solid fa-notes-medical fa-2x mb-2 d-block"></i>
+                                No se encontraron especialidades.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <nav class="mt-4" aria-label="Navegación de páginas">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="Primero">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Último">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Médico - SGH Médica{% endblock %}
+{% block header_title %}{{ action }} Médico Especialista{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4">
+            <div class="card-body">
+                <h3 class="fw-bold text-primary mb-4">{{ action }} Registro Médico</h3>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <h5 class="fw-semibold text-secondary mb-3 border-bottom pb-2">
+                        <i class="fa-solid fa-user-gear me-2"></i>Información de la Cuenta
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label font-weight-500">Nombre de Usuario</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">{{ form.username.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label font-weight-500">Correo Electrónico</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">{{ form.email.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label font-weight-500">Nombres</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.first_name.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label font-weight-500">Apellidos</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.last_name.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.password.id_for_label }}" class="form-label font-weight-500">Contraseña</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">{{ form.password.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.phone_number.id_for_label }}" class="form-label font-weight-500">Teléfono</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.phone_number.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h5 class="fw-semibold text-secondary mt-4 mb-3 border-bottom pb-2">
+                        <i class="fa-solid fa-user-md me-2"></i>Información Profesional
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.specialty.id_for_label }}" class="form-label font-weight-500">Especialidad</label>
+                            {{ form.specialty }}
+                            {% if form.specialty.errors %}
+                                <div class="text-danger small mt-1">{{ form.specialty.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.license_number.id_for_label }}" class="form-label font-weight-500">Número de Licencia</label>
+                            {{ form.license_number }}
+                            {% if form.license_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.license_number.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12 mb-3">
+                            <div class="form-check form-switch mt-2">
+                                {{ form.is_active }}
+                                <label class="form-check-label font-weight-500 ms-2" for="{{ form.is_active.id_for_label }}">Habilitar cuenta del médico (Permitir inicio de sesión)</label>
+                            </div>
+                            {% if form.is_active.errors %}
+                                <div class="text-danger small mt-1">{{ form.is_active.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'doctor_list' %}" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
