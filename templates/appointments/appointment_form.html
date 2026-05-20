@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Cita - SGH Médica{% endblock %}
+{% block header_title %}{{ action }} Cita Médica{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm p-4">
+            <div class="card-body">
+                <h3 class="fw-bold text-primary mb-4">
+                    <i class="fa-solid fa-calendar-plus me-2"></i>{{ action }} Cita Médica
+                </h3>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if user.is_admin %}
+                    <div class="mb-3">
+                        <label for="{{ form.patient.id_for_label }}" class="form-label fw-500">Paciente</label>
+                        {{ form.patient }}
+                        {% if form.patient.errors %}<div class="text-danger small mt-1">{{ form.patient.errors|first }}</div>{% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Specialty selector (JS-driven filter) -->
+                    <div class="mb-3">
+                        <label for="id_specialty" class="form-label fw-500">Especialidad</label>
+                        <select id="id_specialty" class="form-select">
+                            <option value="">-- Todas las Especialidades --</option>
+                            {% for doc in doctors %}
+                                <option value="{{ doc.specialty.id }}">{{ doc.specialty.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.doctor.id_for_label }}" class="form-label fw-500">Médico Especialista</label>
+                        {{ form.doctor }}
+                        {% if form.doctor.errors %}<div class="text-danger small mt-1">{{ form.doctor.errors|first }}</div>{% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.date.id_for_label }}" class="form-label fw-500">Fecha</label>
+                            {{ form.date }}
+                            {% if form.date.errors %}<div class="text-danger small mt-1">{{ form.date.errors|first }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.time.id_for_label }}" class="form-label fw-500">Hora</label>
+                            {{ form.time }}
+                            {% if form.time.errors %}<div class="text-danger small mt-1">{{ form.time.errors|first }}</div>{% endif %}
+                            <div class="form-text text-muted">Las citas deben ser en intervalos de 30 minutos (ej: 08:00, 08:30, 09:00).</div>
+                        </div>
+                    </div>
+
+                    {% if user.is_admin %}
+                    <div class="mb-3">
+                        <label for="{{ form.status.id_for_label }}" class="form-label fw-500">Estado</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}<div class="text-danger small mt-1">{{ form.status.errors|first }}</div>{% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <label for="{{ form.reason.id_for_label }}" class="form-label fw-500">Motivo de la Consulta</label>
+                        {{ form.reason }}
+                        {% if form.reason.errors %}<div class="text-danger small mt-1">{{ form.reason.errors|first }}</div>{% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2">
+                        {% for error in form.non_field_errors %}
+                            <div class="small"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'appointment_list' %}" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa-solid fa-calendar-check me-1"></i>{{ action }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Build a map of doctor_id -> specialty_id for client-side filtering
+const doctorSpecialtyMap = {
+    {% for doc in doctors %}
+    "{{ doc.id }}": "{{ doc.specialty.id }}",
+    {% endfor %}
+};
+
+const specialtySelect = document.getElementById('id_specialty');
+const doctorSelect = document.getElementById('id_doctor');
+
+function filterDoctors() {
+    const selectedSpecialty = specialtySelect.value;
+    const options = doctorSelect.querySelectorAll('option');
+    options.forEach(opt => {
+        if (!opt.value) return; // keep the blank option
+        const specId = doctorSpecialtyMap[opt.value];
+        if (!selectedSpecialty || specId === selectedSpecialty) {
+            opt.style.display = '';
+        } else {
+            opt.style.display = 'none';
+        }
+    });
+    // Reset doctor if current selection is now hidden
+    const selectedOpt = doctorSelect.options[doctorSelect.selectedIndex];
+    if (selectedOpt && selectedOpt.style.display === 'none') {
+        doctorSelect.value = '';
+    }
+}
+
+if (specialtySelect && doctorSelect) {
+    specialtySelect.addEventListener('change', filterDoctors);
+}
+</script>
+{% endblock %}

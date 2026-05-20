@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Historias Clínicas - SGH Médica{% endblock %}
+{% block header_title %}Historias Clínicas{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-primary mb-0"><i class="fa-solid fa-notes-medical me-2"></i>Historias Clínicas</h2>
+        <p class="text-muted mb-0">Registros de consultas y tratamientos médicos.</p>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0 d-flex justify-content-md-end">
+        <form method="get" class="d-flex gap-2">
+            <div class="input-group" style="max-width: 280px;">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" placeholder="Paciente, diagnóstico...">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            {% if query %}<a href="{% url 'medical_record_list' %}" class="btn btn-outline-secondary">Limpiar</a>{% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Médico Tratante</th>
+                        <th>Diagnóstico</th>
+                        <th>Fecha</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in page_obj %}
+                    <tr>
+                        <td class="fw-bold text-dark">{{ record.patient.user.get_full_name }}</td>
+                        <td>Dr. {{ record.doctor.user.get_full_name }}<br>
+                            <small class="text-muted">{{ record.doctor.specialty.name }}</small>
+                        </td>
+                        <td>{{ record.diagnosis|truncatechars:60 }}</td>
+                        <td>{{ record.created_at|date:"d/m/Y H:i" }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'medical_record_detail' record.id %}" class="btn btn-sm btn-primary me-1">
+                                <i class="fa-solid fa-eye"></i> Ver
+                            </a>
+                            {% if user.is_doctor and record.doctor.user == user %}
+                            <a href="{% url 'medical_record_update' record.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'export_medical_record_pdf' record.id %}" class="btn btn-sm btn-outline-danger" title="Descargar PDF">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-notes-medical fa-3x mb-3 d-block" style="opacity:0.4;"></i>
+                            No se encontraron historias clínicas.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-4"><ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">&laquo;</a></li>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">&raquo;</a></li>
+    {% endif %}
+</ul></nav>
+{% endif %}
+{% endblock %}
