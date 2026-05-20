@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - SGH Médica{% endblock %}
+{% block header_title %}Tablero de Control{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm p-4 mb-4" style="background: linear-gradient(135deg, #ffffff 0%, #f1f6fa 100%);">
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar bg-primary text-white d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: 600;">
+                    {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                </div>
+                <div>
+                    <h3 class="fw-bold text-primary mb-1">¡Bienvenido, {{ user.get_full_name|default:user.username }}!</h3>
+                    <p class="text-muted mb-0">Has ingresado como <span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ user.get_role_display }}</span>. Esta es tu página principal.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold text-primary mb-0"><i class="fa-solid fa-bell me-2"></i>Notificaciones y Avisos</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info py-2 mb-2">
+                    <i class="fa-solid fa-circle-info me-2"></i>Bienvenido al nuevo sistema de gestión hospitalaria.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold text-primary mb-0"><i class="fa-solid fa-compass me-2"></i>Acceso Rápido</h5>
+            </div>
+            <div class="card-body d-flex flex-column gap-2">
+                {% if user.is_admin %}
+                    <a href="{% url 'user_list' %}" class="btn btn-outline-primary text-start p-3 d-flex align-items-center gap-3">
+                        <i class="fa-solid fa-users-cog fa-lg"></i>
+                        <div>
+                            <div class="fw-bold">Gestión de Usuarios</div>
+                            <div class="small text-muted">Habilitar/deshabilitar cuentas en el sistema.</div>
+                        </div>
+                    </a>
+                {% elif user.is_patient %}
+                    <a href="{% url 'appointment_create' %}" class="btn btn-outline-primary text-start p-3 d-flex align-items-center gap-3">
+                        <i class="fa-solid fa-calendar-plus fa-lg"></i>
+                        <div>
+                            <div class="fw-bold">Agendar una Nueva Cita</div>
+                            <div class="small text-muted">Selecciona tu médico de preferencia y fecha.</div>
+                        </div>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
