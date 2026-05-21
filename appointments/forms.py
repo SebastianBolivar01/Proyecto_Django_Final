@@ -35,7 +35,7 @@ class AppointmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         # Solo mostrar médicos activos en el desplegable
-        self.fields['doctor'].queryset = Doctor.objects.filter(is_active=True).select_related('user', 'specialty')
+        self.fields['doctor'].queryset = Doctor.objects.filter(user__is_active=True).select_related('user', 'specialty')
         
         # Ajustar los campos según el rol del usuario
         if usuario:
@@ -59,4 +59,4 @@ class AppointmentForm(forms.ModelForm):
         # La validación principal está en el método clean() del modelo.
         # Si 'patient' fue removido (rol Paciente), se asigna en la vista
         # y se dispara la validación completa con full_clean() desde ahí.
-        return cleaned_data
+        return datos_limpios
