@@ -30,34 +30,34 @@ class PatientRegistrationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            if isinstance(field.widget, forms.Select):
-                field.widget.attrs.update({'class': 'form-select'})
+        for nombre_campo, campo in self.fields.items():
+            if isinstance(campo.widget, forms.Select):
+                campo.widget.attrs.update({'class': 'form-select'})
             else:
-                field.widget.attrs.update({'class': 'form-control'})
+                campo.widget.attrs.update({'class': 'form-control'})
 
     def clean_username(self):
-        username = self.cleaned_data.get('username')
-        if CustomUser.objects.filter(username=username).exists():
+        nombre_usuario = self.cleaned_data.get('username')
+        if CustomUser.objects.filter(username=nombre_usuario).exists():
             raise forms.ValidationError("Este nombre de usuario ya está en uso.")
-        return username
+        return nombre_usuario
 
     def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if CustomUser.objects.filter(email=email).exists():
+        correo = self.cleaned_data.get('email')
+        if CustomUser.objects.filter(email=correo).exists():
             raise forms.ValidationError("Este correo electrónico ya está en uso.")
-        return email
+        return correo
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.role = 'PATIENT'
-        user.set_password(self.cleaned_data['password'])
+        usuario = super().save(commit=False)
+        usuario.role = 'PATIENT'
+        usuario.set_password(self.cleaned_data['password'])
         
         if commit:
             with transaction.atomic():
-                user.save()
+                usuario.save()
                 Patient.objects.create(
-                    user=user,
+                    user=usuario,
                     date_of_birth=self.cleaned_data['date_of_birth'],
                     gender=self.cleaned_data['gender'],
                     address=self.cleaned_data['address'],
@@ -65,5 +65,5 @@ class PatientRegistrationForm(forms.ModelForm):
                     emergency_contact_name=self.cleaned_data['emergency_contact_name'],
                     emergency_contact_phone=self.cleaned_data['emergency_contact_phone']
                 )
-        return user
+        return usuario
 
