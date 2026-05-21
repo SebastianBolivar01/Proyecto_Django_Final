@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Consulta Clínica - SGH Médica{% endblock %}
+{% block header_title %}{{ action }} Registro Clínico{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4">
+            <div class="card-body">
+                <!-- Patient Banner -->
+                <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded-3">
+                    <div class="avatar bg-primary text-white d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:50px;height:50px;font-weight:700;">
+                        {{ patient.user.first_name|slice:":1" }}{{ patient.user.last_name|slice:":1" }}
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-primary mb-0">{{ patient.user.get_full_name }}</h5>
+                        <small class="text-muted">
+                            <i class="fa-solid fa-tint me-1"></i>{{ patient.get_blood_type_display }} &nbsp;|&nbsp;
+                            <i class="fa-regular fa-calendar me-1"></i>{{ patient.date_of_birth|date:"d/m/Y" }} &nbsp;|&nbsp;
+                            {{ patient.get_gender_display }}
+                        </small>
+                    </div>
+                </div>
+
+                <h3 class="fw-bold text-primary mb-4"><i class="fa-solid fa-file-medical me-2"></i>{{ action }} Registro de Consulta</h3>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.diagnosis.id_for_label }}" class="form-label fw-semibold">
+                            <i class="fa-solid fa-stethoscope me-1 text-primary"></i>{{ form.diagnosis.label }}
+                        </label>
+                        {{ form.diagnosis }}
+                        {% if form.diagnosis.errors %}<div class="text-danger small mt-1">{{ form.diagnosis.errors|first }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.treatment.id_for_label }}" class="form-label fw-semibold">
+                            <i class="fa-solid fa-heart-pulse me-1 text-primary"></i>{{ form.treatment.label }}
+                        </label>
+                        {{ form.treatment }}
+                        {% if form.treatment.errors %}<div class="text-danger small mt-1">{{ form.treatment.errors|first }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.medications.id_for_label }}" class="form-label fw-semibold">
+                            <i class="fa-solid fa-prescription-bottle-medical me-1 text-primary"></i>{{ form.medications.label }}
+                        </label>
+                        {{ form.medications }}
+                        {% if form.medications.errors %}<div class="text-danger small mt-1">{{ form.medications.errors|first }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold">
+                            <i class="fa-solid fa-pen-to-square me-1 text-primary"></i>{{ form.notes.label }}
+                        </label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}<div class="text-danger small mt-1">{{ form.notes.errors|first }}</div>{% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'patient_detail' patient.id %}" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa-solid fa-floppy-disk me-1"></i>Guardar Registro
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

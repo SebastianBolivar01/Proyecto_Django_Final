@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Reportes y Estadísticas - SGH Médica{% endblock %}
+{% block header_title %}Centro de Reportes{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="fw-bold text-primary mb-0"><i class="fa-solid fa-chart-pie me-2"></i>Reportes y Estadísticas</h2>
+        <p class="text-muted mb-0">Generación de informes de gestión y exportación de datos.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Appointments Export -->
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100 p-3">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="avatar bg-success-subtle text-success d-flex align-items-center justify-content-center rounded-circle me-3" style="width: 50px; height: 50px; font-size: 1.5rem;">
+                        <i class="fa-solid fa-file-excel"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Exportar Citas (Excel/CSV)</h5>
+                        <p class="text-muted small mb-0">Descarga un registro completo de todas las citas del sistema.</p>
+                    </div>
+                </div>
+                <hr>
+                <p class="text-muted small">Incluye IDs, datos del paciente, médico, especialidad, estado y motivo.</p>
+                <div class="text-end mt-4">
+                    <a href="{% url 'export_appointments_excel' %}" class="btn btn-success px-4">
+                        <i class="fa-solid fa-download me-2"></i>Generar Exportación
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Formats Info -->
+    <div class="col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100 p-3 bg-light">
+            <div class="card-body">
+                <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-circle-info me-2"></i>Generación de PDFs</h5>
+                <p class="text-muted small">Los informes en formato PDF (Historias Clínicas y Detalles de Citas) se generan dinámicamente desde sus respectivas vistas.</p>
+                
+                <ul class="list-group list-group-flush bg-transparent">
+                    <li class="list-group-item bg-transparent border-0 px-0 py-2 d-flex align-items-center">
+                        <i class="fa-solid fa-file-pdf text-danger me-2"></i>
+                        <span class="small fw-semibold">Historia Clínica:</span>
+                        <span class="small text-muted ms-1">En el detalle del registro clínico.</span>
+                    </li>
+                </ul>
+                
+                <div class="alert alert-warning py-2 mt-3 small">
+                    <i class="fa-solid fa-lightbulb me-2"></i><strong>Tip:</strong> Usa el comando <code>Ctrl+P</code> o el botón de descarga en la página del informe para guardarlo como PDF en tu dispositivo.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

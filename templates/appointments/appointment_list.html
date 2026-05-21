@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Citas Médicas - SGH Médica{% endblock %}
+{% block header_title %}Citas Médicas{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-primary mb-0"><i class="fa-solid fa-calendar-check me-2"></i>Agenda de Citas</h2>
+        <p class="text-muted mb-0">Gestión de turnos médicos y consultas.</p>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0 d-flex justify-content-md-end gap-2 align-items-center">
+        <form method="get" class="d-flex gap-2">
+            <input type="hidden" name="status" value="{{ status_filter }}">
+            <div class="input-group" style="max-width: 250px;">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" placeholder="Paciente, médico, especialidad...">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            {% if query or status_filter %}
+                <a href="{% url 'appointment_list' %}" class="btn btn-outline-secondary">Limpiar</a>
+            {% endif %}
+        </form>
+        {% if user.is_admin or user.is_patient %}
+            <a href="{% url 'appointment_create' %}" class="btn btn-secondary"><i class="fa-solid fa-calendar-plus me-1"></i>Agendar Cita</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Status Filters -->
+<div class="mb-4">
+    <div class="btn-group shadow-sm" role="group" aria-label="Filtro de Estado">
+        <a href="?status={% if query %}&q={{ query }}{% endif %}" class="btn {% if not status_filter %}btn-primary{% else %}btn-white bg-white text-dark border{% endif %}">Todas</a>
+        <a href="?status=PENDING{% if query %}&q={{ query }}{% endif %}" class="btn {% if status_filter == 'PENDING' %}btn-primary{% else %}btn-white bg-white text-dark border{% endif %}">Pendientes</a>
+        <a href="?status=CONFIRMED{% if query %}&q={{ query }}{% endif %}" class="btn {% if status_filter == 'CONFIRMED' %}btn-primary{% else %}btn-white bg-white text-dark border{% endif %}">Confirmadas</a>
+        <a href="?status=COMPLETED{% if query %}&q={{ query }}{% endif %}" class="btn {% if status_filter == 'COMPLETED' %}btn-primary{% else %}btn-white bg-white text-dark border{% endif %}">Completadas</a>
+        <a href="?status=CANCELLED{% if query %}&q={{ query }}{% endif %}" class="btn {% if status_filter == 'CANCELLED' %}btn-primary{% else %}btn-white bg-white text-dark border{% endif %}">Canceladas</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Médico</th>
+                        <th>Especialidad</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Estado</th>
+                        <th>Motivo</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in page_obj %}
+                        <tr>
+                            <td class="fw-bold text-dark">{{ appt.patient.user.get_full_name }}</td>
+                            <td>Dr. {{ appt.doctor.user.get_full_name }}</td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ appt.doctor.specialty.name }}</span>
+                            </td>
+                            <td>{{ appt.date|date:"d/m/Y" }}</td>
+                            <td>{{ appt.time|time:"H:i" }}</td>
+                            <td>
+                                {% if appt.status == 'PENDING' %}
+                                    <span class="badge badge-status-pending"><i class="fa-solid fa-clock me-1"></i>Pendiente</span>
+                                {% elif appt.status == 'CONFIRMED' %}
+                                    <span class="badge badge-status-confirmed"><i class="fa-solid fa-calendar-check me-1"></i>Confirmada</span>
+                                {% elif appt.status == 'COMPLETED' %}
+                                    <span class="badge badge-status-completed"><i class="fa-solid fa-check-double me-1"></i>Completada</span>
+                                {% else %}
+                                    <span class="badge badge-status-cancelled"><i class="fa-solid fa-ban me-1"></i>Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="text-muted small">{{ appt.reason|truncatechars:30 }}</span></td>
+                            <td class="text-center">
+                                {% if appt.status == 'PENDING' or appt.status == 'CONFIRMED' %}
+                                    {% if user.is_doctor %}
+                                        <!-- Complete action for Doctor -->
+                                        <form action="{% url 'appointment_complete' appt.id %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-success me-1">
+                                                <i class="fa-solid fa-check me-1"></i>Completar
+                                            </button>
+                                        </form>
+                                        <a href="{% url 'appointment_cancel' appt.id %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa-solid fa-xmark"></i> Cancelar
+                                        </a>
+                                    {% elif user.is_admin %}
+                                        <a href="{% url 'appointment_reschedule' appt.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                            <i class="fa-solid fa-calendar-alt me-1"></i>Reprogramar
+                                        </a>
+                                        <a href="{% url 'appointment_cancel' appt.id %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa-solid fa-xmark"></i> Cancelar
+                                        </a>
+                                    {% elif user.is_patient %}
+                                        <a href="{% url 'appointment_cancel' appt.id %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa-solid fa-xmark me-1"></i>Cancelar
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <i class="fa-regular fa-calendar-times fa-2x mb-2 d-block"></i>
+                                No se encontraron citas médicas programadas.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <nav class="mt-4" aria-label="Navegación de páginas">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" aria-label="Primero">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" aria-label="Último">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

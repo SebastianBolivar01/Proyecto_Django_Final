@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Pacientes - SGH Médica{% endblock %}
+{% block header_title %}Control de Pacientes{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-primary mb-0"><i class="fa-solid fa-user-injured me-2"></i>Fichas de Pacientes</h2>
+        <p class="text-muted mb-0">
+            {% if user.is_admin %}
+                Listado general de pacientes registrados en la institución.
+            {% else %}
+                Listado de pacientes que tienen citas agendadas en tus consultas.
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0 d-flex justify-content-md-end gap-2 align-items-center">
+        <form method="get" class="d-flex gap-2">
+            <div class="input-group" style="max-width: 250px;">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" placeholder="Nombre, email, tipo sangre...">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            {% if query %}
+                <a href="{% url 'patient_list' %}" class="btn btn-outline-secondary">Limpiar</a>
+            {% endif %}
+        </form>
+        {% if user.is_admin %}
+            <a href="{% url 'patient_create' %}" class="btn btn-secondary"><i class="fa-solid fa-plus me-1"></i>Registrar Paciente</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Fecha de Nacimiento</th>
+                        <th>Género</th>
+                        <th>Grupo Sanguíneo</th>
+                        <th>Teléfono</th>
+                        <th>Correo Electrónico</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in page_obj %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ patient.user.get_full_name }}</td>
+                            <td>{{ patient.date_of_birth|date:"d/m/Y" }}</td>
+                            <td>{{ patient.get_gender_display }}</td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-dark border">{{ patient.get_blood_type_display }}</span>
+                            </td>
+                            <td>{{ patient.user.phone_number|default:"-" }}</td>
+                            <td>{{ patient.user.email }}</td>
+                            <td class="text-center">
+                                <a href="{% url 'patient_detail' patient.id %}" class="btn btn-sm btn-primary me-1">
+                                    <i class="fa-solid fa-folder-open"></i> Ver Ficha
+                                </a>
+                                {% if user.is_admin %}
+                                    <a href="{% url 'patient_update' patient.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fa-solid fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'patient_delete' patient.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="fa-solid fa-user-injured fa-2x mb-2 d-block"></i>
+                                No se encontraron pacientes registrados.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <nav class="mt-4" aria-label="Navegación de páginas">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="Primero">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Último">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

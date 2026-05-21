@@ -1,0 +1,257 @@
+/* Import google fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #0f4c81; /* Classic Slate Blue */
+    --secondary-color: #16a085; /* Premium Teal */
+    --accent-color: #e74c3c; /* Red accent */
+    --bg-light: #f4f7f6;
+    --card-bg: #ffffff;
+    --text-main: #2c3e50;
+    --text-muted: #7f8c8d;
+    --sidebar-width: 260px;
+    --transition-speed: 0.3s;
+    --border-radius: 12px;
+    --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.4);
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    overflow-x: hidden;
+}
+
+/* Sidebar Styling */
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: var(--sidebar-width);
+    margin-left: calc(-1 * var(--sidebar-width));
+    transition: margin var(--transition-speed) ease-in-out;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #0a3356 100%);
+    color: #ffffff;
+    z-index: 1000;
+    position: fixed;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 1.5rem 1.2rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sidebar-wrapper .list-group-item {
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    border: none;
+    padding: 0.9rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#sidebar-wrapper .list-group-item i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+}
+
+#sidebar-wrapper .list-group-item:hover, 
+#sidebar-wrapper .list-group-item.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding-left: 1.8rem;
+    border-left: 4px solid var(--secondary-color);
+}
+
+/* Page Content Wrapper */
+#page-content-wrapper {
+    min-width: 100vw;
+    transition: margin var(--transition-speed) ease-in-out;
+    padding-left: 0;
+}
+
+/* Toggle behavior in JS */
+body.sb-sidenav-toggled #sidebar-wrapper {
+    margin-left: 0;
+}
+
+@media (min-width: 768px) {
+    #sidebar-wrapper {
+        margin-left: 0;
+    }
+    #page-content-wrapper {
+        min-width: 0;
+        width: 100%;
+        margin-left: var(--sidebar-width);
+    }
+    body.sb-sidenav-toggled #sidebar-wrapper {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+    body.sb-sidenav-toggled #page-content-wrapper {
+        margin-left: 0;
+    }
+}
+
+/* Navbar */
+.navbar {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Cards & Styling */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0b3a62;
+    border-color: #0b3a62;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+}
+
+.btn-secondary:hover {
+    background-color: #12826c;
+    border-color: #12826c;
+}
+
+/* Form Styles */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 0.6rem 0.9rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.25rem rgba(22, 160, 133, 0.25);
+}
+
+/* Micro-animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animated-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Dashboard Summary Cards */
+.metric-card {
+    border-left: 5px solid var(--primary-color);
+}
+.metric-card.teal {
+    border-left: 5px solid var(--secondary-color);
+}
+.metric-card.danger {
+    border-left: 5px solid var(--accent-color);
+}
+.metric-card.warning {
+    border-left: 5px solid #f39c12;
+}
+
+.metric-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Table Styling */
+.table-responsive {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    color: var(--text-main);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 12px 16px;
+}
+
+.table td {
+    padding: 14px 16px;
+    vertical-align: middle;
+}
+
+/* Badges */
+.badge-status-pending {
+    background-color: rgba(243, 156, 18, 0.15);
+    color: #d35400;
+}
+.badge-status-confirmed {
+    background-color: rgba(22, 160, 133, 0.15);
+    color: #16a085;
+}
+.badge-status-cancelled {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #c0392b;
+}
+.badge-status-completed {
+    background-color: rgba(52, 152, 219, 0.15);
+    color: #2980b9;
+}
+.badge {
+    padding: 0.35em 0.65em;
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}

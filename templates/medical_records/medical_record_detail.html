@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Registro Clínico - SGH Médica{% endblock %}
+{% block header_title %}Detalle de Consulta Clínica{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-primary mb-0"><i class="fa-solid fa-file-medical me-2"></i>Historia Clínica</h2>
+                <p class="text-muted mb-0">Registro de consulta del {{ record.created_at|date:"d/m/Y \a \l\a\s H:i" }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'export_medical_record_pdf' record.id %}" class="btn btn-outline-danger">
+                    <i class="fa-solid fa-file-pdf me-1"></i>Descargar PDF
+                </a>
+                {% if user.is_doctor and record.doctor.user == user %}
+                <a href="{% url 'medical_record_update' record.id %}" class="btn btn-primary">
+                    <i class="fa-solid fa-pen me-1"></i>Editar
+                </a>
+                {% endif %}
+                <a href="{% url 'medical_record_list' %}" class="btn btn-light">
+                    <i class="fa-solid fa-arrow-left me-1"></i>Volver
+                </a>
+            </div>
+        </div>
+
+        <!-- Patient & Doctor Info -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="fw-bold text-muted text-uppercase mb-3 small"><i class="fa-solid fa-user-injured me-2"></i>Datos del Paciente</h6>
+                        <h5 class="fw-bold text-primary">{{ record.patient.user.get_full_name }}</h5>
+                        <div class="row g-2 mt-1">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Fecha de Nacimiento</small>
+                                <span class="fw-semibold small">{{ record.patient.date_of_birth|date:"d/m/Y" }}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Grupo Sanguíneo</small>
+                                <span class="badge bg-danger-subtle text-danger border">{{ record.patient.get_blood_type_display }}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Género</small>
+                                <span class="fw-semibold small">{{ record.patient.get_gender_display }}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Teléfono</small>
+                                <span class="fw-semibold small">{{ record.patient.user.phone_number|default:"N/A" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="fw-bold text-muted text-uppercase mb-3 small"><i class="fa-solid fa-user-md me-2"></i>Médico Tratante</h6>
+                        <h5 class="fw-bold text-primary">Dr. {{ record.doctor.user.get_full_name }}</h5>
+                        <div class="mt-2">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-6 py-2 px-3">
+                                <i class="fa-solid fa-stethoscope me-1"></i>{{ record.doctor.specialty.name }}
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted d-block">Lic. Médica</small>
+                            <span class="fw-semibold font-monospace">{{ record.doctor.license_number }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinical Details -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="fw-bold text-primary mb-0"><i class="fa-solid fa-stethoscope me-2"></i>Detalles de la Consulta</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Diagnóstico Clínico</label>
+                        <div class="p-3 bg-light rounded-3">{{ record.diagnosis }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Plan de Tratamiento</label>
+                        <div class="p-3 bg-light rounded-3">{{ record.treatment }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-bold text-muted small text-uppercase"><i class="fa-solid fa-prescription-bottle-medical me-1"></i>Medicamentos Prescritos</label>
+                        <div class="p-3 bg-warning-subtle border border-warning-subtle rounded-3 font-monospace" style="white-space: pre-line;">{{ record.medications|default:"No se prescribieron medicamentos." }}</div>
+                    </div>
+                    {% if record.notes %}
+                    <div class="col-12">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Notas y Observaciones</label>
+                        <div class="p-3 bg-light rounded-3 text-muted">{{ record.notes }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

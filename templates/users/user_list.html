@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Gestión de Usuarios - SGH Médica{% endblock %}
+{% block header_title %}Administración de Usuarios{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-primary mb-0"><i class="fa-solid fa-users-cog me-2"></i>Usuarios del Sistema</h2>
+        <p class="text-muted mb-0">Habilitar/deshabilitar cuentas y ver roles registrados.</p>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0">
+        <form method="get" class="d-flex justify-content-md-end gap-2">
+            <div class="input-group" style="max-width: 350px;">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" placeholder="Buscar por usuario, nombre, email...">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            {% if query %}
+                <a href="{% url 'user_list' %}" class="btn btn-outline-secondary">Limpiar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre Completo</th>
+                        <th>Correo Electrónico</th>
+                        <th>Rol</th>
+                        <th>Fecha de Registro</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in page_obj %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ user.username }}</td>
+                            <td>{{ user.get_full_name|default:"-" }}</td>
+                            <td>{{ user.email|default:"-" }}</td>
+                            <td>
+                                {% if user.is_admin %}
+                                    <span class="badge bg-danger text-white"><i class="fa-solid fa-user-shield me-1"></i>{{ user.get_role_display }}</span>
+                                {% elif user.is_doctor %}
+                                    <span class="badge bg-primary text-white"><i class="fa-solid fa-user-md me-1"></i>{{ user.get_role_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary text-white"><i class="fa-solid fa-user-injured me-1"></i>{{ user.get_role_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if user.is_active %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="fa-solid fa-circle-xmark me-1"></i>Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if user != request.user %}
+                                    <form action="{% url 'user_toggle_status' user.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm {% if user.is_active %}btn-outline-danger{% else %}btn-success{% endif %}" onclick="return confirm('¿Estás seguro de que deseas cambiar el estado de este usuario?')">
+                                            {% if user.is_active %}
+                                                <i class="fa-solid fa-user-slash me-1"></i>Desactivar
+                                            {% else %}
+                                                <i class="fa-solid fa-user-check me-1"></i>Activar
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-muted small italic">Sesión Actual</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="fa-regular fa-folder-open fa-2x mb-2 d-block"></i>
+                                No se encontraron usuarios.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <nav class="mt-4" aria-label="Navegación de páginas">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="Primero">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Último">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

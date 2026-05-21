@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}SGH Médica - Sistema de Gestión Hospitalaria{% endblock %}
+
+{% block content %}
+<div class="row align-items-center my-5">
+    <div class="col-lg-6 mb-5 mb-lg-0">
+        <h1 class="display-4 fw-extrabold text-primary mb-3" style="letter-spacing: -1px; font-weight: 800;">
+            Atención Médica de Calidad, <br><span class="text-secondary">A un Clic de Distancia</span>
+        </h1>
+        <p class="lead text-muted mb-4" style="font-size: 1.15rem; line-height: 1.7;">
+            SGH Médica es la plataforma integral para la gestión de consultas, historias clínicas y comunicación directa con tus médicos especialistas. Agenda tus citas fácil y rápidamente.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-4 py-3 shadow">
+                <i class="fa-solid fa-calendar-plus me-2"></i>Registrarse como Paciente
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg px-4 py-3">
+                <i class="fa-solid fa-sign-in-alt me-2"></i>Iniciar Sesión
+            </a>
+        </div>
+        <div class="row mt-5 text-muted">
+            <div class="col-4 border-end">
+                <h3 class="fw-bold text-primary mb-0">100%</h3>
+                <span class="small">En Línea</span>
+            </div>
+            <div class="col-4 border-end">
+                <h3 class="fw-bold text-primary mb-0">Secures</h3>
+                <span class="small">Datos Protegidos</span>
+            </div>
+            <div class="col-4">
+                <h3 class="fw-bold text-primary mb-0">24/7</h3>
+                <span class="small">Acceso Seguro</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 text-center">
+        <!-- Using a styled graphic container in place of an image -->
+        <div class="p-5 bg-white rounded-5 shadow-lg position-relative overflow-hidden border border-light mx-auto" style="max-width: 480px; background: linear-gradient(145deg, #ffffff 0%, #edf4f9 100%);">
+            <div class="position-absolute bg-primary rounded-circle" style="width: 250px; height: 250px; opacity: 0.05; top: -50px; right: -50px;"></div>
+            <div class="position-absolute bg-secondary rounded-circle" style="width: 150px; height: 150px; opacity: 0.05; bottom: -30px; left: -30px;"></div>
+            
+            <div class="avatar bg-primary text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-4 shadow" style="width: 90px; height: 90px;">
+                <i class="fa-solid fa-laptop-medical fa-3x"></i>
+            </div>
+            <h3 class="fw-bold text-primary mb-2">Portal de Servicios</h3>
+            <p class="text-secondary small mb-4">Ingresa como Administrador, Paciente o Médico</p>
+            
+            <div class="list-group list-group-flush text-start border rounded-3 overflow-hidden bg-white mb-3">
+                <div class="list-group-item p-3 d-flex align-items-start gap-3">
+                    <div class="bg-primary-subtle text-primary p-2 rounded-3"><i class="fa-solid fa-user-injured fa-lg"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Pacientes</h6>
+                        <span class="text-muted small">Agenda citas, consulta tu historia y descarga tus certificados.</span>
+                    </div>
+                </div>
+                <div class="list-group-item p-3 d-flex align-items-start gap-3">
+                    <div class="bg-success-subtle text-success p-2 rounded-3"><i class="fa-solid fa-user-md fa-lg"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Médicos</h6>
+                        <span class="text-muted small">Administra tus citas asignadas y registra la historia clínica de tus pacientes.</span>
+                    </div>
+                </div>
+                <div class="list-group-item p-3 d-flex align-items-start gap-3">
+                    <div class="bg-danger-subtle text-danger p-2 rounded-3"><i class="fa-solid fa-user-shield fa-lg"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Administradores</h6>
+                        <span class="text-muted small">Controla usuarios, edita especialidades y exporta reportes de gestión.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

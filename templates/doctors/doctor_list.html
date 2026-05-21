@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Médicos Especialistas - SGH Médica{% endblock %}
+{% block header_title %}Personal Médico{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-primary mb-0"><i class="fa-solid fa-user-md me-2"></i>Médicos Especialistas</h2>
+        <p class="text-muted mb-0">Gestión de profesionales, especialidades y licencias médicas.</p>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0 d-flex justify-content-md-end gap-2 align-items-center">
+        <form method="get" class="d-flex gap-2">
+            <div class="input-group" style="max-width: 250px;">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" placeholder="Nombre, especialidad, licencia...">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            {% if query %}
+                <a href="{% url 'doctor_list' %}" class="btn btn-outline-secondary">Limpiar</a>
+            {% endif %}
+        </form>
+        <a href="{% url 'doctor_create' %}" class="btn btn-secondary"><i class="fa-solid fa-plus me-1"></i>Registrar Médico</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Especialidad</th>
+                        <th>Licencia</th>
+                        <th>Teléfono</th>
+                        <th>Correo Electrónico</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doctor in page_obj %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ doctor.user.get_full_name }}</td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ doctor.specialty.name }}</span>
+                            </td>
+                            <td class="font-monospace text-secondary">{{ doctor.license_number }}</td>
+                            <td>{{ doctor.user.phone_number|default:"-" }}</td>
+                            <td>{{ doctor.user.email }}</td>
+                            <td>
+                                {% if doctor.is_active %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="fa-solid fa-circle-check me-1"></i>Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="fa-solid fa-circle-xmark me-1"></i>Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'doctor_update' doctor.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                    <i class="fa-solid fa-edit"></i> Editar
+                                </a>
+                                <a href="{% url 'doctor_delete' doctor.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="fa-solid fa-trash"></i> Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="fa-solid fa-user-md fa-2x mb-2 d-block"></i>
+                                No se encontraron médicos registrados.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <nav class="mt-4" aria-label="Navegación de páginas">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="Primero">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Último">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}
