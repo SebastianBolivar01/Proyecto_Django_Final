@@ -40,6 +40,8 @@ if os.path.exists(env_file):
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+if 'VERCEL' in os.environ or os.environ.get('VERCEL_ENV'):
+    ALLOWED_HOSTS.extend(['.vercel.app'])
 
 
 # Application definition
