@@ -83,7 +83,7 @@ def appointment_create(request):
         
     # Traer médicos activos para el filtro por especialidad
     from doctors.models import Doctor
-    medicos_activos = Doctor.objects.filter(is_active=True).select_related('user', 'specialty')
+    medicos_activos = Doctor.objects.filter(user__is_active=True).select_related('user', 'specialty')
     
     return render(request, 'appointments/appointment_form.html', {
         'form': formulario,
@@ -115,7 +115,7 @@ def appointment_reschedule(request, pk):
         formulario = AppointmentForm(instance=cita)
         
     from doctors.models import Doctor
-    medicos_activos = Doctor.objects.filter(is_active=True).select_related('user', 'specialty')
+    medicos_activos = Doctor.objects.filter(user__is_active=True).select_related('user', 'specialty')
     
     return render(request, 'appointments/appointment_form.html', {
         'form': formulario,
