@@ -15,7 +15,8 @@ class Appointment(models.Model):
 
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='appointments', verbose_name="Paciente")
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='appointments', verbose_name="Médico")
-    date_time = models.DateTimeField(verbose_name="Fecha y Hora")
+    date = models.DateField(verbose_name="Fecha")
+    time = models.TimeField(verbose_name="Hora")
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='PENDING', verbose_name="Estado")
     reason = models.CharField(max_length=255, verbose_name="Motivo de la Consulta")
     notes = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales")
@@ -23,45 +24,62 @@ class Appointment(models.Model):
     class Meta:
         verbose_name = "Cita Médica"
         verbose_name_plural = "Citas Médicas"
-        ordering = ['date_time']
+        ordering = ['date', 'time']
 
     def clean(self):
-        # Prevent past dates for new/unsaved or rescheduled appointments
-        if self.date_time:
+        from datetime import datetime
+        # Evitar que se agenden citas en fechas pasadas
+        if self.date and self.time:
+            fecha_hora = timezone.make_aware(datetime.combine(self.date, self.time))
+            
             if not self.pk:
-                if self.date_time < timezone.now():
+                # Es una cita nueva: no puede estar en el pasado
+                if fecha_hora < timezone.now():
                     raise ValidationError("La fecha y hora de la cita no puede estar en el pasado.")
             else:
-                original = Appointment.objects.get(pk=self.pk)
-                if original.date_time != self.date_time and self.date_time < timezone.now():
+                # Es una reprogramación: solo validar si la fecha u hora cambiaron
+                cita_original = Appointment.objects.get(pk=self.pk)
+                fecha_hora_original = timezone.make_aware(datetime.combine(cita_original.date, cita_original.time))
+                if (cita_original.date != self.date or cita_original.time != self.time) and fecha_hora < timezone.now():
                     raise ValidationError("La fecha y hora de la cita no puede estar en el pasado.")
             
-            # Prevent doctor overlap. Let's assume an appointment lasts 30 minutes.
-            # So, check if there is another appointment for the same doctor within +/- 29 minutes.
-            start_range = self.date_time - timedelta(minutes=29)
-            end_range = self.date_time + timedelta(minutes=29)
+            # Verificar que el médico no tenga otra cita en el mismo rango de 30 min
+            rango_inicio = fecha_hora - timedelta(minutes=29)
+            rango_fin = fecha_hora + timedelta(minutes=29)
             
-            overlapping_appointments = Appointment.objects.filter(
+            citas_medico = Appointment.objects.filter(
                 doctor=self.doctor,
-                date_time__range=(start_range, end_range)
+                date=self.date
             ).exclude(status='CANCELLED')
             
-            if self.pk:
-                overlapping_appointments = overlapping_appointments.exclude(pk=self.pk)
-                
-            if overlapping_appointments.exists():
+            hay_conflicto = False
+            for cita in citas_medico:
+                if self.pk and cita.pk == self.pk:
+                    continue  # Excluir la cita actual al editar
+                cita_dt = timezone.make_aware(datetime.combine(cita.date, cita.time))
+                if rango_inicio <= cita_dt <= rango_fin:
+                    hay_conflicto = True
+                    break
+            
+            if hay_conflicto:
                 raise ValidationError("El médico ya tiene otra cita programada en este rango de tiempo (las citas duran 30 minutos).")
 
-            # Prevent patient overlap
-            overlapping_patient_appointments = Appointment.objects.filter(
+            # Verificar que el paciente no tenga otra cita al mismo tiempo
+            citas_paciente = Appointment.objects.filter(
                 patient=self.patient,
-                date_time__range=(start_range, end_range)
+                date=self.date
             ).exclude(status='CANCELLED')
             
-            if self.pk:
-                overlapping_patient_appointments = overlapping_patient_appointments.exclude(pk=self.pk)
-                
-            if overlapping_patient_appointments.exists():
+            conflicto_paciente = False
+            for cita in citas_paciente:
+                if self.pk and cita.pk == self.pk:
+                    continue
+                cita_dt = timezone.make_aware(datetime.combine(cita.date, cita.time))
+                if rango_inicio <= cita_dt <= rango_fin:
+                    conflicto_paciente = True
+                    break
+                    
+            if conflicto_paciente:
                 raise ValidationError("El paciente ya tiene otra cita programada en este rango de tiempo.")
 
     def save(self, *args, **kwargs):
@@ -69,5 +87,5 @@ class Appointment(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Cita de {self.patient} con Dr. {self.doctor.user.last_name} - {self.date_time.strftime('%d/%m/%Y %H:%M')}"
+        return f"Cita de {self.patient} con Dr. {self.doctor.user.last_name} - {self.date.strftime('%d/%m/%Y')} {self.time.strftime('%H:%M')}"
 
